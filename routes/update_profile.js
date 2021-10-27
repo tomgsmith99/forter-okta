@@ -8,16 +8,19 @@ var qs = require('qs')
 const users = {
 
 	"00uptdgk3iNZYSAc10h7": {
+		"accountId": "lois-abc-123",
 		"username": "lois.lane",
 		"ip_address": "0.0.0.1",
 		"expected_response": "APPROVED"
 	},
 	"00u12h404fjSQ6JOs0h8": {
+		"accountId": "clark-abc-123",
 		"username": "clark.kent",
 		"ip_address": "0.0.0.4",
 		"expected_response": "VERIFICATION_REQUIRED"
 	},
 	"00u12h3y4wdZxVq7m0h8": {
+		"accountId": "lex-abc-123",
 		"username": "lex.luthor",
 		"ip_address": "0.0.0.2",
 		"expected_response": "DECLINED"
@@ -34,21 +37,23 @@ module.exports = function(app){
 		const user_id = req.body.user_id
 
 		const data = JSON.stringify({
-		  "accountId": "e520-ba9a-367-60b",
+		  "accountId": users[user_id].accountId,
 		  "connectionInformation": {
 		    "customerIP": users[user_id].ip_address,
 		    "userAgent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36"
 		  },
-		  "eventTime": 1634821836332
-		});
+		  "eventTime": Date.now()
+		})
 
 		const config = {
+		  auth: {
+			username: process.env.FORTER_KEY
+		  },
 		  method: 'post',
-		  url: 'https://f75b5370024a.api.forter-secure.com/v2/accounts/profile-access/e520-ba9a-367-60b',
+		  url: process.env.FORTER_TENANT + '/v2/accounts/profile-access/' + users[user_id].accountId,
 		  headers: { 
 		    'api-version': '2.36', 
-		    'Content-Type': 'application/json', 
-		    'Authorization': 'Basic OGYyNTZiOGMyODQ4MzFmZDEzZjU1ZjNkN2EyOTFlYjFmOWIyNjIxNjo='
+		    'Content-Type': 'application/json'
 		  },
 		  data: data
 		}
