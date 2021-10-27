@@ -77,6 +77,12 @@
 		    		$("#mfa_success").show()
 		    		$("#update_profile").show()
 		    		$("#security_question_div").hide()
+		    		$("#wrong_answer").hide()
+
+		    	}
+		    	else {
+		    		$("#security_answer").val("")
+		    		$("#wrong_answer").show()
 		    	}
 		    })
 		}
@@ -111,61 +117,7 @@
 	    	check_for_session()
 	    }
 
-	    // oktaSignIn.authClient.session.exists().then(function (sessionExists) {
-	    //     if (sessionExists) {
-
-	    //     	console.log("the user has an okta session.")
-
-	    //         oktaSignIn.authClient.session.get()
-	    //         .then(function(session) {
-	    //             post_login(session, session.login, session.userId)
-	    //         })
-	    //         .catch(function(err) {
-	    //             // not logged in
-	    //         })
-	    //     }
-	    //     else {
-	    //         oktaSignIn.showSignInAndRedirect({
-	    //             el: '#osw-container'
-	    //         }).catch(function(error) {
-	    //             // Handle error
-	    //         })
-	    //     }
-	    // })
-	// }
-
-	// function authz_code_in_url(callback) {
-	//     const params = new URLSearchParams(window.location.search)
-
-	//     if (params.has('code')) {
-	//         return callback(null, params.get('code'))
-	//     }
-	//     else {
-	//         return callback("none")
-	//     }
-	// }
-
-	// function post_code(code, callback) {
-	//     $.post(
-	//         "/code", {
-	//             code: code,
-	//             flow_name: "{{flow_name}}"
-	//     })
-	//     .done(function( data ) {
-	//         if (data.access_token) {
-	//         	window.history.replaceState({}, document.title, "/" + "")
-	//             console.log("access token:")
-	//             console.log(data.access_token)
-	//             localStorage.setItem("access_token", data.access_token)
-	//             $("#instrux").html("<p>{{user_msg_end}}</p>")
-	//             $("#password").hide()
-	//         }
-	//         else {
-	//             console.dir(data)
-	//         }
-	//     })
-
-</script>
+	</script>
 
 </head>
 
@@ -224,7 +176,8 @@
 
 				        	<button onclick = "submit_security_answer()">go</button>
 
-				        	<p>
+				        	<p id="wrong_answer" style="display: none;">sorry, that was not correct</p>
+
 				        </div>
 
 				        <p style="background-color: palegreen; display: none" id = "mfa_success">Success!</p>
