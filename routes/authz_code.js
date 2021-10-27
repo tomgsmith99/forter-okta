@@ -44,6 +44,7 @@ module.exports = function(app){
 			return
 		})
 		.catch(function (error) {
+			console.dir(error)
 			res.json({"error": "something went wrong with the token request to okta"})
 			return
 		})		

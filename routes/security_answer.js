@@ -1,8 +1,6 @@
 
 const axios = require('axios')
 
-var qs = require('qs')
-
 ////////////////////////////////////////////////////
 
 const users = {
