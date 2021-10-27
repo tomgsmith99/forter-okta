@@ -1,0 +1,255 @@
+<html>
+
+<head>
+	<title>Forter + Okta demo</title>
+
+	<!-- ******* CSS ******** -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+	<link href="https://global.oktacdn.com/okta-signin-widget/5.12.2/css/okta-sign-in.min.css" type="text/css" rel="stylesheet"/>
+
+	<script src="https://global.oktacdn.com/okta-signin-widget/5.12.2/js/okta-sign-in.min.js" type="text/javascript"></script>
+
+	<!-- ******* JAVASCRIPT ******** -->
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
+
+	<script>
+
+		function post_login(session, username, user_id) {
+
+			console.log("okta session:")
+			console.dir(session)
+
+			$("#okta_logout").show()
+			$("#username").html(username)
+			$("#password").hide()
+
+			localStorage.setItem("username", username)
+			localStorage.setItem("user_id", user_id)
+		}
+
+		function sign_out() {
+			localStorage.clear()
+			window.location = "{{{baseUrl}}}/login/signout?fromURI={{{redirectUri}}}"
+		}
+
+		function update_profile() {
+		    $.post(
+		        "/update_profile", {
+		            username: localStorage.getItem("username"),
+		            user_id: localStorage.getItem("user_id")
+		    })
+		    .done(function( data ) {
+
+		    	console.log("forter response:")
+
+		    	console.dir(data)
+
+		    	if (data.forterDecision == "VERIFICATION_REQUIRED") {
+
+		    		$("#security_question_div").show()
+		    		$("#security_question").html(data.security_question)
+
+		    		localStorage.setItem("security_question_id", data.security_question_id)
+		    	}
+		    })
+		}
+
+		function submit_security_answer() {
+
+			const security_answer = $("#security_answer").val()
+
+			$.post(
+	        "/security_answer", {
+	            security_answer: security_answer,
+	            security_question_id: localStorage.getItem("security_question_id"),
+	            user_id: localStorage.getItem("user_id")
+		    })
+		    .done(function( data ) {
+
+		    	console.log("Okta MFA response:")
+
+		    	console.dir(data)
+
+		    	if (data.factorResult == "SUCCESS") {
+		    		$("#mfa_success").show()
+		    		$("#update_profile").show()
+		    		$("#security_question_div").hide()
+		    	}
+		    })
+		}
+
+		function widget_init() {
+  			const widget_config = {
+					baseUrl: '{{{baseUrl}}}',
+			    clientId: '{{clientId}}',
+			    redirectUri: '{{{redirectUri}}}',
+			    authParams: {
+			      pkce: false,
+			      responseType: 'code'
+			  	}
+			  }
+
+  			return new OktaSignIn(widget_config)
+		}
+
+		window.onload = function() {
+
+	    authz_code_in_url(function(err, code) {
+	        if (err) {
+	            console.log("there is not an authz code in the url.")
+	        }
+	        else {
+	            console.log("the code is: " + code)
+
+	            post_code(code, function(err, result) {
+	                console.log("posted the code.")
+	            })
+	        }
+	    })
+
+	    oktaSignIn = widget_init()
+
+	    oktaSignIn.authClient.session.exists().then(function (sessionExists) {
+	        if (sessionExists) {
+
+	        		console.log("the user has an okta session.")
+
+	            oktaSignIn.authClient.session.get()
+	            .then(function(session) {
+	                post_login(session, session.login, session.userId)
+	            })
+	            .catch(function(err) {
+	                // not logged in
+	            })
+	        }
+	        else {
+	            oktaSignIn.showSignInAndRedirect({
+	                el: '#osw-container'
+	            }).catch(function(error) {
+	                // Handle error
+	            })
+	        }
+	    })
+	}
+
+	function authz_code_in_url(callback) {
+	    const params = new URLSearchParams(window.location.search)
+
+	    if (params.has('code')) {
+	        return callback(null, params.get('code'))
+	    }
+	    else {
+	        return callback("none")
+	    }
+	}
+
+	function post_code(code, callback) {
+	    $.post(
+	        "/code", {
+	            code: code,
+	            flow_name: "{{flow_name}}"
+	    })
+	    .done(function( data ) {
+	        if (data.access_token) {
+	        	window.history.replaceState({}, document.title, "/" + "")
+	            console.log("access token:")
+	            console.log(data.access_token)
+	            localStorage.setItem("access_token", data.access_token)
+	            $("#instrux").html("<p>{{user_msg_end}}</p>")
+	            $("#password").hide()
+	        }
+	        else {
+	            console.dir(data)
+	        }
+	    })
+	}
+
+</script>
+
+</head>
+
+<body>
+
+	<main role="main" class="container">
+
+		<div class="starter-template">
+
+		  <h2>Forter + Okta demo</h2>
+
+				<div class="row">
+				    <div class="col-4">
+				        
+				        <p id="instrux">
+				        	<p style="text-align: center; font-weight: bold;">Instructions</p>
+				        	<p>First, log in as one of the three users below.</p>
+				        	<p>Upon successful login, you will be presented with a button to update your profile.</p>
+				        	<p>Click the button to make a call to Forter and see the result.</p>
+
+				        	<table border = 1>
+				        		<tr><td><b>user</b></td><td><b>result</b></td></tr>
+				        		<tr><td>lois.lane</td><td>accepted</td></tr>
+				        		<tr><td>clark.kent</td><td>MFA challenge</td></tr>
+				        		<tr><td>lex.luthor</td><td>rejected</td></tr>
+				        	</table>
+				        </p>
+
+				        <p id="password">
+				            password: {{public_password}}</p>
+				        </p>
+
+				        <div id="okta_logout" style="display: none;">
+				            <p>Welcome, <span id="username"></span>!</p>
+
+				            <p><button onclick='update_profile()'>update profile</button></p>
+
+				            <p><button onclick='sign_out()'>log out</button></a></p>
+				        </div>
+
+				    </div>
+
+				    <div class="col-8">
+				        <div id="osw-container" style="text-align: top;"></div>
+
+				        <div id="security_question_div" style="display: none;">
+				        	<p>Please verify your account!</p>
+
+				        	<p>(for a real user, this would be a list of MFA options. For demo purposes, we're just going to use a security question.)
+
+				        	<p id = "security_question"></p>
+
+				        	<input type = "text" size = "25" id = "security_answer">
+
+				        	<button onclick = "submit_security_answer()">go</button>
+
+				        	<p>
+				        </div>
+
+				        <p style="background-color: palegreen; display: none" id = "mfa_success">Success!</p>
+
+				        <p style="background-color: lightyellow; display: none" id = "forter_reject">
+				        	Sorry, something is not quite right. Please contact customer support for further assistance.
+				        </p>
+
+				        <div id="update_profile" style="display: none">
+
+				        	<p>You can update your profile:</p>
+
+				        	<p>first name: <input type = "text"></p>
+				        	<p>last name: <input type= "text"></p>
+				        	<p>phone number: <input type="text"></p>
+
+				        </div>
+				    </div>
+				</div>
+		</div>
+	  
+	</main><!-- /.container -->
+
+</body>
+
+</html>
