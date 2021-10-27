@@ -49,12 +49,21 @@
 
 		    	console.dir(data)
 
+		    	$("#forter_result_div").show()
+		    	$("#forter_result").html(data.forterDecision)
+
 		    	if (data.forterDecision == "VERIFICATION_REQUIRED") {
 
 		    		$("#security_question_div").show()
 		    		$("#security_question").html(data.security_question)
 
 		    		localStorage.setItem("security_question_id", data.security_question_id)
+		    	}
+		    	else if (data.forterDecision == "APPROVE") {
+		    		$("#update_profile").show()
+		    	}
+		    	else if (data.forterDecision == "DECLINE") {
+		    		$("#forter_reject").show()
 		    	}
 		    })
 		}
@@ -206,6 +215,8 @@
 				            <p>Welcome, <span id="username"></span>!</p>
 
 				            <p><button onclick='update_profile()'>update profile</button></p>
+
+				            <p id = "forter_result_div" style="display: none;">forter result: <span id="forter_result"></span></p>
 
 				            <p><button onclick='sign_out()'>log out</button></a></p>
 				        </div>
