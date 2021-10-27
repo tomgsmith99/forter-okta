@@ -16,6 +16,8 @@ app.use(express.urlencoded({extended: true}))
 
 // app.use(morgan('combined'))
 
+app.use(express.static('public'))
+
 app.engine('html', mustacheExpress())
 
 app.set('view engine', 'html')
