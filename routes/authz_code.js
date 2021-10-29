@@ -10,8 +10,6 @@ module.exports = function(app){
 
 		console.log("the code is: " + req.body.code)
 
-		// const widget_config = JSON.parse(config[flow_name].widget_config)
-
 		const client_id = process.env.CLIENT_ID
 
 		const client_secret = process.env.CLIENT_SECRET

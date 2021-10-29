@@ -33,7 +33,7 @@ app.listen(port, () => {
 /*************************************************/
 
 require('./routes/authz_code')(app)
-require('./routes/security_answer')(app)
+require('./routes/mfa')(app)
 require('./routes/update_profile')(app)
 
 /*************************************************/
@@ -49,9 +49,7 @@ app.get('/', (req, res) => {
 		baseUrl: process.env.BASE_URL,
 		clientId: process.env.CLIENT_ID,
 		public_password: process.env.PUBLIC_PASSWORD,
-		redirectUri: process.env.REDIRECT_URI,
-		okta_session: true,
-		show_password: true
+		redirectUri: process.env.REDIRECT_URI
 	}
 
 	res.render ('index', obj)

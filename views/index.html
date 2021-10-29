@@ -17,6 +17,8 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js" integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF" crossorigin="anonymous"></script>
 
+	<script src="js/mfa.js"></script>
+
 	<script src="js/primary_authn.js"></script>
 
 	<script>
@@ -27,6 +29,11 @@
 		}
 
 		function update_profile() {
+
+    		$("#mfa_response_div").hide()
+    		$("#mfa_success").hide()
+    		$("#update_profile").hide()
+
 		    $.post(
 		        "/update_profile", {
 		            username: localStorage.getItem("username"),
@@ -43,46 +50,27 @@
 
 		    	if (data.forterDecision == "VERIFICATION_REQUIRED") {
 
-		    		$("#security_question_div").show()
-		    		$("#security_question").html(data.security_question)
+		    		$("#factors_list_div").show()
 
-		    		localStorage.setItem("security_question_id", data.security_question_id)
+		    		for (factor of data.factors) {
+
+		    			if (factor.factorType == "question") {
+		    				$("#security_question_factor").show()
+		    				localStorage.setItem("security_question", factor.question_text)
+		    				localStorage.setItem("question_factor_id", factor.id)
+		    			}
+		    			else if (factor.factorType == "email") {
+		    				$("#email_factor").show()
+		    				$("#email").html(factor.email)
+		    				localStorage.setItem("email_factor_id", factor.id)
+		    			}
+		    		}
 		    	}
 		    	else if (data.forterDecision == "APPROVE") {
 		    		$("#update_profile").show()
 		    	}
 		    	else if (data.forterDecision == "DECLINE") {
 		    		$("#forter_reject").show()
-		    	}
-		    })
-		}
-
-		function submit_security_answer() {
-
-			const security_answer = $("#security_answer").val()
-
-			$.post(
-	        "/security_answer", {
-	            security_answer: security_answer,
-	            security_question_id: localStorage.getItem("security_question_id"),
-	            user_id: localStorage.getItem("user_id")
-		    })
-		    .done(function( data ) {
-
-		    	console.log("Okta MFA response:")
-
-		    	console.dir(data)
-
-		    	if (data.factorResult == "SUCCESS") {
-		    		$("#mfa_success").show()
-		    		$("#update_profile").show()
-		    		$("#security_question_div").hide()
-		    		$("#wrong_answer").hide()
-
-		    	}
-		    	else {
-		    		$("#security_answer").val("")
-		    		$("#wrong_answer").show()
 		    	}
 		    })
 		}
@@ -165,24 +153,29 @@
 				    <div class="col-8">
 				        <div id="osw-container" style="text-align: top;"></div>
 
-				        <div id="security_question_div" style="display: none;">
-				        	<p>Please verify your account!</p>
+				        <div id="factors_list_div" style="display: none;">
+				        	<p>Please verify your account using one of these methods:</p>
 
-				        	<p>(for a real user, this would be a list of MFA options. For demo purposes, we're just going to use a security question.)
+				        	<p id="email_factor" style="display: none;">email: we'll send a security code to <span id="email"></span> <button onclick = "show_factor('email')">go</button></p>
 
-				        	<p id = "security_question"></p>
-
-				        	<input type = "text" size = "25" id = "security_answer">
-
-				        	<button onclick = "submit_security_answer()">go</button>
-
-				        	<p id="wrong_answer" style="display: none;">sorry, that was not correct</p>
-
+				        	<p id="security_question_factor" style="display: none;">security question <button onclick="show_factor('question')">go</button></p>
 				        </div>
 
-				        <p style="background-color: palegreen; display: none" id = "mfa_success">Success!</p>
+			        	<div id = "mfa_response_div" style="display: none"></p>
 
-				        <p style="background-color: lightyellow; display: none" id = "forter_reject">
+			        		<div id="mfa_instrux"></div>
+
+			        		<input type = "text" size = "25" id = "mfa_response">
+
+			        		<button onclick = "submit_mfa_response()">go</button>
+
+			        	</div>
+
+			        	<p id = "incorrect_response" style="display: none">sorry, that was not correct</p>
+
+				        <p id = "mfa_success" style="background-color: palegreen; display: none">Success!</p>
+
+				        <p id = "forter_reject" style="background-color: lightyellow; display: none">
 				        	Sorry, something is not quite right. Please contact customer support for further assistance.
 				        </p>
 
