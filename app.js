@@ -51,7 +51,7 @@ app.get('/', (req, res) => {
 		public_password: process.env.PUBLIC_PASSWORD,
 		redirectUri: process.env.REDIRECT_URI,
 		eu: process.env.FORTER_EU,
-		site_id: process.env.SITE_ID
+		site_id: process.env.FORTER_SITE_ID
 	}
 
 	res.render ('index', obj)
