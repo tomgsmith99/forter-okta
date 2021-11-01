@@ -49,7 +49,9 @@ app.get('/', (req, res) => {
 		baseUrl: process.env.BASE_URL,
 		clientId: process.env.CLIENT_ID,
 		public_password: process.env.PUBLIC_PASSWORD,
-		redirectUri: process.env.REDIRECT_URI
+		redirectUri: process.env.REDIRECT_URI,
+		eu: process.env.FORTER_EU,
+		site_id: process.env.SITE_ID
 	}
 
 	res.render ('index', obj)

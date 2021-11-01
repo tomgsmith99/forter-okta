@@ -23,22 +23,25 @@ const users = {
 		"ip_address": "0.0.0.2",
 		"expected_response": "DECLINED"
 	}
-
 }
 
 module.exports = function(app){
 	app.post('/update_profile', function (req, res) {
 
-		console.log("the username is: " + req.body.username)
-		console.log("the user_id is: " + req.body.user_id)
-
+		const username = req.body.username
 		const user_id = req.body.user_id
+		const forter_token = req.body.forter_token
+
+		console.log("the username is: " + username)
+		console.log("the user_id is: " + user_id)
+		console.log("the forter token is: " + forter_token)
 
 		const data = JSON.stringify({
 		  "accountId": users[user_id].accountId,
 		  "connectionInformation": {
 		    "customerIP": users[user_id].ip_address,
-		    "userAgent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36"
+		    "userAgent": req.headers['user-agent'],
+		    "forterTokenCookie": forter_token
 		  },
 		  "eventTime": Date.now()
 		})
@@ -124,7 +127,6 @@ function get_factors(user_id, callback) {
 	  return callback(null, response.data)
 	})
 	.catch(function (error) {
-	  console.log(error);
-	});
-
+	  console.log(error)
+	})
 }
