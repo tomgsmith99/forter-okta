@@ -4,6 +4,8 @@ require('dotenv').config()
 const express = require('express')
 var morgan = require('morgan')
 
+var session = require('express-session')
+
 let mustacheExpress = require('mustache-express')
 
 /*************************************************/
@@ -17,6 +19,8 @@ app.use(express.urlencoded({extended: true}))
 // app.use(morgan('combined'))
 
 app.use(express.static('public'))
+
+// app.use(session({ secret: process.env.SESSION_SECRET, cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false}))
 
 app.engine('html', mustacheExpress())
 
@@ -54,6 +58,19 @@ app.get('/', (req, res) => {
 		site_id: process.env.FORTER_SITE_ID
 	}
 
+	// req.session.test = "hello"
+
+	// console.log(req.session.test)
+
 	res.render ('index', obj)
 
+})
+
+app.get('/session', function (req, res) {
+		if (req.session.authenticated) {
+			res.json({authenticated: true})
+		}
+		else {
+			res.json({authenticated: false})
+		}
 })

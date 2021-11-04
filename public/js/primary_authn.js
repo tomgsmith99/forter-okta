@@ -12,6 +12,19 @@ function authz_code_in_url(callback) {
 
 function check_for_session() {
 
+	// $.get("/session")
+	// .done(function( data ) {
+
+	// 	console.dir(data)
+
+	// 	if (data.authenticated) {
+	// 		$("#password").hide()
+	// 	}
+	// 	else {
+	// 		console.dir(data)
+	// 	}
+	// })
+
 	oktaSignIn.authClient.session.exists().then(function (sessionExists) {
 		if (sessionExists) {
 
