@@ -3,6 +3,8 @@ const axios = require('axios')
 
 var qs = require('qs')
 
+const jwt_decode = require('jwt-decode')
+
 ////////////////////////////////////////////////////
 
 module.exports = function(app){
@@ -38,13 +40,27 @@ module.exports = function(app){
 		
 		axios(c)
 		.then(function (response) {
-			res.json({"access_token": response.data.access_token})
-			return
+
+			console.dir(response.data)
+
+			if (response.data.id_token) {
+				req.session.authenticated = true
+
+				const decoded = jwt_decode(response.data.id_token)
+
+				console.dir(decoded)
+
+				res.json({
+					authenticated: true,
+					firstName: decoded.firstName,
+					email: decoded.email,
+					user_id: decoded.sub
+				})
+			}
 		})
 		.catch(function (error) {
 			console.dir(error)
 			res.json({"error": "something went wrong with the token request to okta"})
-			return
 		})		
 	})
 }

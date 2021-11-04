@@ -21,7 +21,7 @@ function show_factor(factor_type) {
 	    	console.dir(data)
 	    })
 
-	    msg = "<p>We have sent a security code to the email address on file.</p><p>Please enter the security code here:</p>"
+	    msg = "<p>We have sent a security code to the email address on file (" + localStorage.getItem('email') + ").</p><p>Please enter the security code here:</p>"
 	}
 	else {
 	    msg = "<p>" + localStorage.getItem("security_question") + "</p>"	
