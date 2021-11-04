@@ -20,7 +20,7 @@ app.use(express.urlencoded({extended: true}))
 
 app.use(express.static('public'))
 
-// app.use(session({ secret: process.env.SESSION_SECRET, cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false}))
+app.use(session({ secret: process.env.SESSION_SECRET, cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false}))
 
 app.engine('html', mustacheExpress())
 
@@ -58,10 +58,6 @@ app.get('/', (req, res) => {
 		site_id: process.env.FORTER_SITE_ID
 	}
 
-	// req.session.test = "hello"
-
-	// console.log(req.session.test)
-
 	res.render ('index', obj)
 
 })
@@ -73,4 +69,9 @@ app.get('/session', function (req, res) {
 		else {
 			res.json({authenticated: false})
 		}
+})
+
+app.get('/log_out', function (req, res) {
+		req.session.authenticated = false
+		res.sendStatus(200)
 })

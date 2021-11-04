@@ -24,8 +24,13 @@
 	<script>
 
 		function sign_out() {
+
 			localStorage.clear()
-			window.location = "{{{baseUrl}}}/login/signout?fromURI={{{redirectUri}}}"
+
+			$.get("/log_out")
+		    .done(function( data ) {
+		    	window.location = "{{{baseUrl}}}/login/signout?fromURI={{{redirectUri}}}"
+		    })
 		}
 
 		function update_profile() {
@@ -97,7 +102,8 @@
 				redirectUri: '{{{redirectUri}}}',
 				authParams: {
 					pkce: false,
-					responseType: 'code'
+					responseType: 'code',
+					scopes: ['openid', 'email', 'profile', 'address', 'phone']
 				}
 			}
 
@@ -152,8 +158,8 @@
 				            password: {{public_password}}</p>
 				        </p>
 
-				        <div id="okta_logout" style="display: none;">
-				            <p>Welcome, <span id="username"></span>!</p>
+				        <div id="logout" style="display: none;">
+				            <p>Welcome, <span id="firstName"></span>!</p>
 
 				            <p><button onclick='update_profile()'>update profile</button></p>
 

@@ -12,33 +12,21 @@ function authz_code_in_url(callback) {
 
 function check_for_session() {
 
-	// $.get("/session")
-	// .done(function( data ) {
+	$.get("/session")
+	.done(function( data ) {
 
-	// 	console.dir(data)
+		console.dir(data)
 
-	// 	if (data.authenticated) {
-	// 		$("#password").hide()
-	// 	}
-	// 	else {
-	// 		console.dir(data)
-	// 	}
-	// })
+		if (data.authenticated) {
 
-	oktaSignIn.authClient.session.exists().then(function (sessionExists) {
-		if (sessionExists) {
+			console.log("the user has an app session.")
 
-			console.log("the user has an okta session.")
-
-			oktaSignIn.authClient.session.get()
-			.then(function(session) {
-				post_login(session, session.login, session.userId)
-			})
-			.catch(function(err) {
-				// not logged in
-			})
+			$("#password").hide()
 		}
 		else {
+
+			console.log("the user does not have an app session.")
+
 			oktaSignIn.showSignInAndRedirect({
 				el: '#osw-container'
 			}).catch(function(error) {
@@ -48,16 +36,20 @@ function check_for_session() {
 	})
 }
 
-function post_login(session, username, user_id) {
+function update_ui(data) {
 
-	console.log("okta session:")
-	console.dir(session)
+	const { authenticated, firstName, email, user_id } = data
 
-	$("#okta_logout").show()
-	$("#username").html(username)
+	$("#osw-container").hide()
 	$("#password").hide()
 
-	localStorage.setItem("username", username)
+	$("#logout").show()
+	$("#firstName").html(firstName)
+
+	// oktaSignIn.hide()
+
+	localStorage.setItem("email", email)
+	localStorage.setItem("firstName", firstName)
 	localStorage.setItem("user_id", user_id)
 }
 
@@ -67,12 +59,14 @@ function post_code(code, callback) {
 			code: code
 	})
 	.done(function( data ) {
-		if (data.access_token) {
+		if (data.authenticated) {
 			window.history.replaceState({}, document.title, "/" + "")
-			console.log("access token:")
-			console.log(data.access_token)
-			localStorage.setItem("access_token", data.access_token)
-			$("#password").hide()
+
+			console.log("the user has an app session.")
+
+			console.dir(data)
+
+			update_ui(data)
 		}
 		else {
 			console.dir(data)
