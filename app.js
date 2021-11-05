@@ -55,6 +55,7 @@ app.get('/', (req, res) => {
 		public_password: process.env.PUBLIC_PASSWORD,
 		redirectUri: process.env.REDIRECT_URI,
 		eu: process.env.FORTER_EU,
+		logo_url: process.env.LOGO_URL,
 		site_id: process.env.FORTER_SITE_ID
 	}
 

@@ -43,7 +43,10 @@ function update_ui(data) {
 	$("#osw-container").hide()
 	$("#password").hide()
 
+	$("#welcome_msg").show()
 	$("#logout").show()
+	$("#logout_button").show()
+
 	$("#firstName").html(firstName)
 
 	// oktaSignIn.hide()
