@@ -1,3 +1,4 @@
 .env*
+!.env_example
 node_modules
 todo.txt
